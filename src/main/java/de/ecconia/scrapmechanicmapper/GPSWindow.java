@@ -51,108 +51,114 @@ public class GPSWindow extends JFrame
 	private class Controls extends JComponent
 	{
 		private JButton center;
-		private List<JButton> colors = new ArrayList<>();
+		private JButton activeOne;
 		
 		public Controls()
 		{
 			setLayout(new FlowLayout());
 			
 			center = new JButton("Center");
+			center.setToolTipText("Align map with player again.");
 			center.setEnabled(false);
 			center.addActionListener((ActionEvent e) -> {
 				center.setEnabled(false);
-				
 				offsetX = 0;
 				offsetZ = 0;
 				alternateCenter = null;
-				
 				pane.repaint();
 			});
 			add(center);
 			
 			//Street Gray
-			JButton street = new JButton("Gray");
-			street.setBackground(Color.darkGray);
-			street.setForeground(Color.white);
-			street.setFocusable(false);
-			colors.add(street);
-			street.addActionListener((ActionEvent e) -> {
-				for(JButton button : colors)
-				{
-					button.setEnabled(true);
-				}
-				street.setEnabled(false);
+			JButton gray = new JButton("  ");
+			gray.setToolTipText("Track with gray color.");
+			gray.setBackground(Color.darkGray);
+			gray.setForeground(Color.white);
+			gray.setFocusable(false);
+			gray.addActionListener((ActionEvent e) -> {
+				rearm();
+				gray.setEnabled(false);
 				core.setColor(Color.darkGray);
+				gray.setBackground(Color.darkGray.darker());
+				activeOne = gray;
 			});
-			add(street);
+			add(gray);
 			//Grass grassland
-			JButton grass = new JButton("Green");
-			grass.setBackground(Color.green);
-			grass.setForeground(Color.white);
-			grass.setFocusable(false);
-			colors.add(grass);
-			grass.addActionListener((ActionEvent e) -> {
-				for(JButton button : colors)
-				{
-					button.setEnabled(true);
-				}
-				grass.setEnabled(false);
+			JButton green = new JButton("  ");
+			green.setToolTipText("Track with green color.");
+			green.setBackground(Color.green);
+			green.setForeground(Color.white);
+			green.setFocusable(false);
+			green.addActionListener((ActionEvent e) -> {
+				rearm();
+				green.setEnabled(false);
 				core.setColor(Color.green);
+				green.setBackground(Color.green.darker());
+				activeOne = green;
 			});
-			add(grass);
+			add(green);
 			//Other blue
-			JButton other = new JButton("Blue");
-			other.setBackground(Color.blue);
-			other.setForeground(Color.white);
-			other.setFocusable(false);
-			other.setEnabled(false);
-			colors.add(other);
-			other.addActionListener((ActionEvent e) -> {
-				for(JButton button : colors)
-				{
-					button.setEnabled(true);
-				}
-				other.setEnabled(false);
+			JButton blue = new JButton("  ");
+			blue.setToolTipText("Track with blue color.");
+			blue.setBackground(Color.blue);
+			blue.setForeground(Color.white);
+			blue.setFocusable(false);
+			blue.addActionListener((ActionEvent e) -> {
+				rearm();
+				blue.setEnabled(false);
 				core.setColor(Color.blue);
+				blue.setBackground(Color.blue.darker());
+				activeOne = blue;
 			});
-			add(other);
+			add(blue);
 			//Other Red
-			JButton red = new JButton("Red");
+			JButton red = new JButton("  ");
+			red.setToolTipText("Track with red color.");
 			red.setBackground(Color.red);
 			red.setForeground(Color.white);
 			red.setFocusable(false);
-			colors.add(red);
 			red.addActionListener((ActionEvent e) -> {
-				for(JButton button : colors)
-				{
-					button.setEnabled(true);
-				}
+				rearm();
 				red.setEnabled(false);
 				core.setColor(Color.red);
+				red.setBackground(Color.red.darker());
+				activeOne = red;
 			});
 			add(red);
 			
 			//OFF
 			JButton off = new JButton("Off");
+			off.setToolTipText("Don't track movement.");
 			off.setFocusable(false);
-			colors.add(off);
+			//Default:
+			activeOne = off;
+			off.setEnabled(false);
 			off.addActionListener((ActionEvent e) -> {
-				for(JButton button : colors)
-				{
-					button.setEnabled(true);
-				}
+				rearm();
 				off.setEnabled(false);
 				core.setColor(null);
+				activeOne = off;
 			});
 			add(off);
 			
-			//OFF
+			//Waypoint
 			JButton waypoint = new JButton("+");
+			waypoint.setToolTipText("Add waypoint.");
 			waypoint.setFocusable(false);
 			waypoint.addActionListener((ActionEvent e) -> {
 				captureWaypoint = true;
 			});
 			add(waypoint);
+		}
+		
+		private void rearm()
+		{
+			activeOne.setEnabled(true);
+			if(!activeOne.getText().equals("Off"))
+			{
+				activeOne.setBackground(activeOne.getBackground().brighter());
+				activeOne.repaint();
+			}
 		}
 	}
 	

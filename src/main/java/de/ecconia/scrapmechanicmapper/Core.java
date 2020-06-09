@@ -23,7 +23,7 @@ public class Core implements AddressToPosition.PositionReceiver
 	
 	private final GPSWindow window;
 	
-	private Color currentColor = Color.blue;
+	private Color currentColor; //NULL -> Disabled on boot
 	
 	public Core()
 	{
@@ -106,7 +106,6 @@ public class Core implements AddressToPosition.PositionReceiver
 				System.err.println("Could not save data, sucks for you.");
 				e.printStackTrace();
 			}
-			
 		}));
 	}
 	
