@@ -14,7 +14,7 @@ public class PositionScanner
 		String daName = wrapper.getProcessImageFileName();
 		System.out.println(daName);
 		
-		Psapi.LPMODULEINFO info = wrapper.getProcessModuleInfo();
+		Psapi.LPMODULEINFO info = wrapper.getProcessModuleInfo("ScrapMechanic.exe");
 		long offset = pointerToLong(info.lpBaseOfDll);
 		long entry = pointerToLong(info.EntryPoint);
 		System.out.println("Offset: " + info.lpBaseOfDll + " " + offset);
@@ -52,16 +52,16 @@ public class PositionScanner
 			}
 			System.out.println();
 		}
-		
+
 //		System.out.println("Done.");
 	}
+	
 	private static long pointerToLong(Pointer pointer)
 	{
 		String str = pointer.toString();
 		if(str.startsWith("native@0x"))
 		{
-			long value = Long.parseLong(str.substring("native@0x".length(), str.length()), 16);
-			return value;
+			return Long.parseLong(str.substring("native@0x".length(), str.length()), 16);
 		}
 		else
 		{

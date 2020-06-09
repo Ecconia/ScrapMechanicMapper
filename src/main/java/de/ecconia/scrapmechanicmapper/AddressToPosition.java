@@ -6,7 +6,6 @@ public class AddressToPosition extends Thread
 {
 	private final long addressA;
 	private final long addressB;
-	
 	private final PositionReceiver receiver;
 	
 	private final ProcessWrapper process;
