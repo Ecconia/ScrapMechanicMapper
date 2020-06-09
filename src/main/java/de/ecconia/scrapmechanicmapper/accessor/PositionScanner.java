@@ -1,7 +1,6 @@
 package de.ecconia.scrapmechanicmapper.accessor;
 
 import com.sun.jna.Pointer;
-
 import java.util.ArrayList;
 import java.util.List;
 
