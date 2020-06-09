@@ -1,11 +1,23 @@
 package de.ecconia.scrapmechanicmapper;
 
-import javax.swing.*;
+import de.ecconia.scrapmechanicmapper.objects.Line;
+import de.ecconia.scrapmechanicmapper.objects.Waypoint;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.Point;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -195,7 +207,7 @@ public class GPSWindow extends JFrame
 	
 	private class Controls extends JComponent
 	{
-		private JButton center;
+		private final JButton center;
 		private JButton activeOne;
 		
 		public Controls()
@@ -416,14 +428,14 @@ public class GPSWindow extends JFrame
 			
 			int offX = center.x - w / 2;
 			int offZ = center.y - h / 2;
-			for(Core.Line line : core.getLines())
+			for(Line line : core.getStorage().getLines())
 			{
 				g.setColor(line.color);
 				g.drawLine(line.x1 - offX, line.z1 - offZ, line.x2 - offX, line.z2 - offZ);
 			}
 			
 			g.setColor(Color.red);
-			for(Core.Waypoint waypoint : core.getWaypoints())
+			for(Waypoint waypoint : core.getStorage().getWaypoints())
 			{
 				int x = waypoint.x - offX;
 				int z = waypoint.z - offZ;
