@@ -351,7 +351,7 @@ public class GPSWindow extends JFrame
 						if(name != null && !name.trim().isEmpty())
 						{
 							name = name.trim();
-							core.addWaypoint(name, core.getLastX() + offsetX - getWidth() / 2 + e.getX(), core.getLastZ() + offsetZ - getHeight() / 2 + e.getY());
+							core.addWaypoint(name, core.getLastUpdatedPositionX() + offsetX - getWidth() / 2 + e.getX(), core.getLastUpdatedPositionZ() + offsetZ - getHeight() / 2 + e.getY());
 							pane.repaint();
 						}
 					}
@@ -401,7 +401,7 @@ public class GPSWindow extends JFrame
 							controls.center.setEnabled(true);
 						}
 						
-						alternateCenter = new Point(core.getLastX() + offsetX, core.getLastZ() + offsetZ);
+						alternateCenter = new Point(core.getLastUpdatedPositionX() + offsetX, core.getLastUpdatedPositionZ() + offsetZ);
 						
 						GPSWindow.this.repaint();
 					}
@@ -420,7 +420,7 @@ public class GPSWindow extends JFrame
 			int w = getWidth();
 			int h = getHeight();
 			
-			Point realCenter = new Point(core.getLastX(), core.getLastZ());
+			Point realCenter = new Point(core.getLastUpdatedPositionX(), core.getLastUpdatedPositionZ());
 			Point center = alternateCenter == null ? realCenter : alternateCenter;
 			
 			g.setColor(Color.white);

@@ -9,18 +9,21 @@ public class Core implements AddressToPosition.PositionReceiver
 {
 	private final Storage storage;
 	
-	private boolean initial = true;
-	private int lastX = -1000;
-	private int lastZ = -1000;
-	
-	private int fixX;
-	private int fixZ;
+	private boolean firstUpdateAfterLinking = true;
+	private int lastUpdatedPositionX = -1000;
+	private int lastUpdatedPositionZ = -1000;
+	private int lineStartX;
+	private int lineStartZ;
 	
 	private final GPSWindow window;
 	
-	private Color currentColor; //NULL -> Disabled on boot
-	private AddressToPosition updater;
+	/**
+	 * The current color used to draw a line. If NULL then no line will be drawn.
+	 */
+	private Color currentLineColor; //NULL -> Disabled on boot
+	private AddressToPosition positionUpdater;
 	
+	//TODO: Make the whole project more GUI, less console oriented.
 	public Core()
 	{
 		storage = new Storage("save.txt");
@@ -54,41 +57,40 @@ public class Core implements AddressToPosition.PositionReceiver
 	@Override
 	public void updatePosition(float a, float b)
 	{
-		int x = (int) a;
-		int z = (int) b;
-		if(initial)
+		int currentX = (int) a;
+		int currentZ = (int) b;
+		if(firstUpdateAfterLinking)
 		{
-			initial = false;
-			lastX = x;
-			lastZ = z;
-			fixX = x;
-			fixZ = z;
+			firstUpdateAfterLinking = false;
+			//Reset the positions to wherever the player is.
+			lastUpdatedPositionX = lineStartX = currentX;
+			lastUpdatedPositionZ = lineStartZ = currentZ;
 		}
 		else
 		{
-			if(lastX != x || lastZ != z)
+			if(lastUpdatedPositionX != currentX || lastUpdatedPositionZ != currentZ)
 			{
-				move(lastX, lastZ, x, z);
-				lastX = x;
-				lastZ = z;
+				handleNewPosition(currentX, currentZ);
+				//The window uses these current positions, thus update before the window.
+				lastUpdatedPositionX = currentX;
+				lastUpdatedPositionZ = currentZ;
 				window.update();
 			}
 		}
 	}
 	
-	private void move(int lastX, int lastZ, int curX, int curZ)
+	private void handleNewPosition(int currentX, int currentZ)
 	{
-		if(currentColor != null)
+		if(currentLineColor != null)
 		{
-			int dx = fixX - curX;
-			int dz = fixZ - curZ;
-			double dist = Math.sqrt(dx * dx + dz * dz);
+			int distanceLineStartX = lineStartX - currentX;
+			int distanceLienStartZ = lineStartZ - currentZ;
+			double dist = Math.sqrt(distanceLineStartX * distanceLineStartX + distanceLienStartZ * distanceLienStartZ);
 			if(dist > 20)
 			{
-				
-				storage.addLine(new Line(fixX, fixZ, curX, curZ, currentColor));
-				fixX = curX;
-				fixZ = curZ;
+				storage.addLine(new Line(lineStartX, lineStartZ, currentX, currentZ, currentLineColor));
+				lineStartX = currentX;
+				lineStartZ = currentZ;
 			}
 		}
 	}
@@ -98,24 +100,25 @@ public class Core implements AddressToPosition.PositionReceiver
 		return storage;
 	}
 	
-	public int getLastX()
+	public int getLastUpdatedPositionX()
 	{
-		return lastX;
+		return lastUpdatedPositionX;
 	}
 	
-	public int getLastZ()
+	public int getLastUpdatedPositionZ()
 	{
-		return lastZ;
+		return lastUpdatedPositionZ;
 	}
 	
 	public void setColor(Color color)
 	{
-		if(currentColor == null)
+		if(currentLineColor == null)
 		{
-			fixX = lastX;
-			fixZ = lastZ;
+			//Reset the line starting position.
+			lineStartX = lastUpdatedPositionX;
+			lineStartZ = lastUpdatedPositionZ;
 		}
-		currentColor = color;
+		currentLineColor = color;
 	}
 	
 	public void addWaypoint(String name, int x, int z)
@@ -123,22 +126,23 @@ public class Core implements AddressToPosition.PositionReceiver
 		storage.addWaypoint(new Waypoint(name, x, z));
 	}
 	
-	public void updateAddresses(long addrA, long addrB)
+	public void updateAddresses(long addressA, long addressB)
 	{
-		if(updater != null)
+		if(positionUpdater != null)
 		{
-			updater.interrupt();
+			positionUpdater.interrupt();
 			try
 			{
-				updater.join(); //TODO: Timeout, properly handled.
+				positionUpdater.join(); //TODO: Timeout, properly handled.
 			}
 			catch(InterruptedException e)
 			{
-				e.printStackTrace(); //For real?? Common make these RuntimeEx.
+				e.printStackTrace();
 			}
 		}
 		
-		updater = new AddressToPosition(addrA, addrB, this);
-		updater.start();
+		firstUpdateAfterLinking = true;
+		positionUpdater = new AddressToPosition(addressA, addressB, this);
+		positionUpdater.start();
 	}
 }
