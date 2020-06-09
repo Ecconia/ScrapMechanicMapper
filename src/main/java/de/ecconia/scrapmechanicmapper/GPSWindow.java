@@ -1,19 +1,22 @@
 package de.ecconia.scrapmechanicmapper;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import java.awt.*;
-import java.util.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.util.ArrayList;
 
 public class GPSWindow extends JFrame
 {
 	private final Core core;
 	private final DrawPane pane;
 	private final Controls controls;
+	private final Settings settingsPane;
 	
 	private Point alternateCenter;
 	private int offsetX, offsetZ;
@@ -33,7 +36,8 @@ public class GPSWindow extends JFrame
 		getContentPane().setLayout(new BorderLayout());
 		
 		controls = new Controls();
-		getContentPane().add(controls, BorderLayout.NORTH);
+		settingsPane = new Settings();
+		getContentPane().add(settingsPane, BorderLayout.NORTH);
 		
 		pane = new DrawPane();
 		getContentPane().add(pane, BorderLayout.CENTER);
@@ -48,6 +52,147 @@ public class GPSWindow extends JFrame
 		pane.repaint();
 	}
 	
+	private class Settings extends JComponent
+	{
+		public Settings()
+		{
+			setLayout(new FlowLayout());
+			
+			add(new JLabel("Addresses:"));
+			JTextField a = new JTextField();
+			a.setToolTipText("Address X.");
+			JTextField b = new JTextField();
+			b.setToolTipText("Address Z.");
+			a.setPreferredSize(new Dimension(100, 27));
+			a.getDocument().addDocumentListener(new DocumentListener()
+			{
+				@Override
+				public void insertUpdate(DocumentEvent e)
+				{
+					update(e.getDocument());
+				}
+				
+				@Override
+				public void removeUpdate(DocumentEvent e)
+				{
+					update(e.getDocument());
+				}
+				
+				@Override
+				public void changedUpdate(DocumentEvent e)
+				{
+					update(e.getDocument());
+				}
+				
+				private void update(Document doc)
+				{
+					try
+					{
+						String text = doc.getText(0, doc.getLength());
+						if(text.matches("[0-9a-fA-F]+"))
+						{
+							a.setBackground(Color.white);
+						}
+						else
+						{
+							a.setBackground(new Color(250, 200, 200));
+						}
+						
+					}
+					catch(BadLocationException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			});
+			b.getDocument().addDocumentListener(new DocumentListener()
+			{
+				@Override
+				public void insertUpdate(DocumentEvent e)
+				{
+					update(e.getDocument());
+				}
+				
+				@Override
+				public void removeUpdate(DocumentEvent e)
+				{
+					update(e.getDocument());
+				}
+				
+				@Override
+				public void changedUpdate(DocumentEvent e)
+				{
+					update(e.getDocument());
+				}
+				
+				private void update(Document doc)
+				{
+					try
+					{
+						String text = doc.getText(0, doc.getLength());
+						if(text.trim().matches("[0-9a-fA-F]+"))
+						{
+							b.setBackground(Color.white);
+						}
+						else
+						{
+							b.setBackground(new Color(250, 200, 200));
+						}
+					}
+					catch(BadLocationException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			});
+			add(a);
+			
+			JButton button = new JButton("Swap");
+			button.setToolTipText("Swap both fields.");
+			button.setFocusable(false);
+			button.addActionListener((ActionEvent e) -> {
+				String ta = a.getText().trim();
+				String tb = b.getText().trim();
+				a.setText(tb);
+				b.setText(ta);
+			});
+			add(button);
+			
+			b.setPreferredSize(new Dimension(100, 27));
+			add(b);
+			
+			JButton done = new JButton("Done");
+			done.setToolTipText("Apply the new addresses.");
+			done.setFocusable(false);
+			done.addActionListener((ActionEvent e) -> {
+				String at = a.getText().trim();
+				a.setText(at);
+				String bt = b.getText().trim();
+				b.setText(bt);
+				
+				if(at.matches("[0-9a-fA-F]+") && bt.matches("[0-9a-fA-F]+"))
+				{
+					try
+					{
+						long addrA = Long.parseLong(at, 16);
+						long addrB = Long.parseLong(bt, 16);
+						core.updateAddresses(addrA, addrB);
+					}
+					catch(NumberFormatException numberFormatException)
+					{
+						JOptionPane.showMessageDialog(null, "Well either of these two could not be parsed: " + numberFormatException.getMessage());
+					}
+				}
+				
+				GPSWindow.this.getContentPane().remove(settingsPane);
+				GPSWindow.this.getContentPane().add(controls, BorderLayout.NORTH);
+				GPSWindow.this.getContentPane().revalidate();
+				GPSWindow.this.getContentPane().repaint();
+			});
+			add(done);
+		}
+	}
+	
 	private class Controls extends JComponent
 	{
 		private JButton center;
@@ -56,6 +201,17 @@ public class GPSWindow extends JFrame
 		public Controls()
 		{
 			setLayout(new FlowLayout());
+			
+			JButton settings = new JButton("Addr");
+			settings.setToolTipText("Set the position memory addresses here.");
+			settings.setFocusable(false);
+			settings.addActionListener((ActionEvent e) -> {
+				GPSWindow.this.getContentPane().remove(controls);
+				GPSWindow.this.getContentPane().add(settingsPane, BorderLayout.NORTH);
+				GPSWindow.this.getContentPane().revalidate();
+				GPSWindow.this.getContentPane().repaint();
+			});
+			add(settings);
 			
 			center = new JButton("Center");
 			center.setToolTipText("Align map with player again.");

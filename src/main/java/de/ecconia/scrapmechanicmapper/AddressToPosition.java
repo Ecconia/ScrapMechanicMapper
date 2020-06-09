@@ -25,7 +25,8 @@ public class AddressToPosition extends Thread
 	@Override
 	public void run()
 	{
-		while(true)
+		System.out.println("Started update thread.");
+		while(!isInterrupted())
 		{
 			float a = process.readFloat(addressA);
 			float b = process.readFloat(addressB);
@@ -37,9 +38,10 @@ public class AddressToPosition extends Thread
 			}
 			catch(InterruptedException e)
 			{
-				System.out.println("Update thread terminated.");
+				break;
 			}
 		}
+		System.out.println("Stopped updated thread.");
 	}
 	
 	public interface PositionReceiver

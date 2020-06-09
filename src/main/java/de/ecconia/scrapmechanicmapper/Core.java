@@ -24,6 +24,7 @@ public class Core implements AddressToPosition.PositionReceiver
 	private final GPSWindow window;
 	
 	private Color currentColor; //NULL -> Disabled on boot
+	private AddressToPosition updater;
 	
 	public Core()
 	{
@@ -74,12 +75,7 @@ public class Core implements AddressToPosition.PositionReceiver
 			System.exit(1);
 		}
 		
-//		long address = 0x5048B9E8L;
-//		AddressToPosition updater = new AddressToPosition(address + 4, address, this);
-		
 		window = new GPSWindow(this);
-		
-//		updater.start();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			System.out.println("Saving...");
@@ -183,6 +179,25 @@ public class Core implements AddressToPosition.PositionReceiver
 	public List<Waypoint> getWaypoints()
 	{
 		return waypoints;
+	}
+	
+	public void updateAddresses(long addrA, long addrB)
+	{
+		if(updater != null)
+		{
+			updater.interrupt();
+			try
+			{
+				updater.join(); //TODO: Timeout, properly handled.
+			}
+			catch(InterruptedException e)
+			{
+				e.printStackTrace(); //For real?? Common make these RuntimeEx.
+			}
+		}
+		
+		updater = new AddressToPosition(addrA, addrB, this);
+		updater.start();
 	}
 	
 	public static class Waypoint
