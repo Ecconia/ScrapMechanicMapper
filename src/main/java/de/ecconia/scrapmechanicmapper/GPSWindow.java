@@ -8,6 +8,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -346,6 +348,8 @@ public class GPSWindow extends JFrame
 	
 	private class DrawPane extends JComponent
 	{
+		private float zoomFactor = 1f;
+		
 		public DrawPane()
 		{
 			addMouseListener(new MouseListener()
@@ -364,10 +368,16 @@ public class GPSWindow extends JFrame
 						String name = JOptionPane.showInputDialog("Name of waypoint?");
 						if(name != null && !name.trim().isEmpty())
 						{
+							int w = getWidth();
+							int h = getHeight();
+							int hw = w / 2;
+							int hh = h / 2;
+
 							name = name.trim();
 							core.addWaypoint(name,
-									centerLocationX - getWidth() / 2 + e.getX(),
-									centerLocationZ - getHeight() / 2 + e.getY());
+									centerLocationX + (int) ((e.getX() - hw) / zoomFactor),
+									centerLocationZ + (int) ((e.getY() - hh) / zoomFactor)
+							);
 							pane.repaint();
 						}
 					}
@@ -406,11 +416,11 @@ public class GPSWindow extends JFrame
 						if(!isCustomCenter)
 						{
 							controls.center.setEnabled(true);
+							isCustomCenter = true;
 						}
 						
-						isCustomCenter = true;
-						centerLocationX += x;
-						centerLocationZ += z;
+						centerLocationX += x / zoomFactor;
+						centerLocationZ += z / zoomFactor;
 						
 						GPSWindow.this.repaint();
 					}
@@ -421,6 +431,26 @@ public class GPSWindow extends JFrame
 				{
 				}
 			});
+			addMouseWheelListener((MouseWheelEvent e) -> {
+				int amount = e.getWheelRotation();
+				if(amount == 0)
+				{
+					return;
+				}
+				
+				//TODO: If center is not locked, zoom to/from cursor.
+				
+				if(amount < 0)
+				{
+					zoomFactor *= 1.1;
+				}
+				else
+				{
+					zoomFactor /= 1.1;
+				}
+				
+				repaint();
+			});
 		}
 		
 		@Override
@@ -428,8 +458,10 @@ public class GPSWindow extends JFrame
 		{
 			int w = getWidth();
 			int h = getHeight();
-			int localXOffset = centerLocationX - w / 2;
-			int localZOffset = centerLocationZ - h / 2;
+			int hw = w / 2;
+			int hh = h / 2;
+			int localXOffset = centerLocationX - hw;
+			int localZOffset = centerLocationZ - hh;
 			
 			//Draw background:
 			g.setColor(Color.white);
@@ -439,22 +471,31 @@ public class GPSWindow extends JFrame
 			for(Line line : core.getStorage().getLines())
 			{
 				g.setColor(line.color);
-				g.drawLine(line.x1 - localXOffset, line.z1 - localZOffset, line.x2 - localXOffset, line.z2 - localZOffset);
+				g.drawLine(
+						(int) ((line.x1 - localXOffset - hw) * zoomFactor + hw),
+						(int) ((line.z1 - localZOffset - hh) * zoomFactor + hh),
+						(int) ((line.x2 - localXOffset - hw) * zoomFactor + hw),
+						(int) ((line.z2 - localZOffset - hh) * zoomFactor + hh)
+				);
 			}
 			
 			//Draw waypoints:
 			g.setColor(Color.red);
 			for(Waypoint waypoint : core.getStorage().getWaypoints())
 			{
-				int x = waypoint.x - localXOffset;
-				int z = waypoint.z - localZOffset;
+				int x = (int) ((waypoint.x - localXOffset - hw) * zoomFactor + hw);
+				int z = (int) ((waypoint.z - localZOffset - hh) * zoomFactor + hh);
 				g.drawOval(x - 3, z - 3, 6, 6);
 				g.drawString(waypoint.label, x + 6, z + 4);
 			}
 			
 			//Draw player position:
 			g.setColor(Color.black);
-			g.drawOval(w / 2 - (centerLocationX - core.getLastUpdatedPositionX()) - 3, h / 2 - (centerLocationZ - core.getLastUpdatedPositionZ()) - 3, 6, 6);
+			g.drawOval(
+					//Removed hw and hh twice.
+					(int) ((core.getLastUpdatedPositionX() - centerLocationX - 3) * zoomFactor + hw),
+					(int) ((core.getLastUpdatedPositionZ() - centerLocationZ - 3) * zoomFactor + hh),
+					6, 6);
 		}
 	}
 }
