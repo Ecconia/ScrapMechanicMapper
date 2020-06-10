@@ -10,7 +10,7 @@ import com.sun.jna.win32.W32APIOptions;
 
 public interface User32 extends W32APIOptions
 {
-	User32 INSTANCE = (User32) Native.loadLibrary("user32", User32.class, DEFAULT_OPTIONS);
+	User32 INSTANCE = (User32) Native.loadLibrary("user32", User32.class);
 	
 	Pointer GetDC(Pointer hWnd);
 	

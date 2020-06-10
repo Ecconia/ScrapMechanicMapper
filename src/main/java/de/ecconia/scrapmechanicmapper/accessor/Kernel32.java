@@ -5,11 +5,9 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.win32.StdCallLibrary;
 
-import static com.sun.jna.win32.W32APIOptions.DEFAULT_OPTIONS;
-
 public interface Kernel32 extends StdCallLibrary
 {
-	Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("kernel32", User32.class, DEFAULT_OPTIONS);
+	Kernel32 INSTANCE = (Kernel32) Native.loadLibrary("kernel32", Kernel32.class);
 	
 	// description from msdn
 	//BOOL WINAPI WriteProcessMemory(
