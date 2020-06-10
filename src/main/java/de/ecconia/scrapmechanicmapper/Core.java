@@ -10,8 +10,8 @@ public class Core implements AddressToPosition.PositionReceiver
 	private final Storage storage;
 	
 	private boolean firstUpdateAfterLinking = true;
-	private int lastUpdatedPositionX = -1000;
-	private int lastUpdatedPositionZ = -1000;
+	private int lastUpdatedPositionX = 0;
+	private int lastUpdatedPositionZ = 0;
 	private int lineStartX;
 	private int lineStartZ;
 	
@@ -38,7 +38,7 @@ public class Core implements AddressToPosition.PositionReceiver
 			System.exit(1);
 		}
 		
-		window = new GPSWindow(this);
+		window = new GPSWindow(this, lastUpdatedPositionX, lastUpdatedPositionZ);
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
 			System.out.println("Saving...");
@@ -65,6 +65,7 @@ public class Core implements AddressToPosition.PositionReceiver
 			//Reset the positions to wherever the player is.
 			lastUpdatedPositionX = lineStartX = currentX;
 			lastUpdatedPositionZ = lineStartZ = currentZ;
+			window.resetMovement();
 		}
 		else
 		{
@@ -74,7 +75,7 @@ public class Core implements AddressToPosition.PositionReceiver
 				//The window uses these current positions, thus update before the window.
 				lastUpdatedPositionX = currentX;
 				lastUpdatedPositionZ = currentZ;
-				window.update();
+				window.updatePlayerPosition(currentX, currentZ);
 			}
 		}
 	}

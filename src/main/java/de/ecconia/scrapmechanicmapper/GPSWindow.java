@@ -30,15 +30,15 @@ public class GPSWindow extends JFrame
 	private final Controls controls;
 	private final Settings settingsPane;
 	
-	private Point alternateCenter;
-	private int offsetX, offsetZ;
-	private int lastOffsetX, lastOffsetZ;
+	private boolean isCustomCenter = false;
+	private int centerLocationX, centerLocationZ;
 	private Point pointerDown;
-	
 	boolean captureWaypoint;
 	
-	public GPSWindow(Core core)
+	public GPSWindow(Core core, int x, int z)
 	{
+		centerLocationX = x;
+		centerLocationZ = z;
 		this.core = core;
 		
 		setTitle("Path tracer");
@@ -59,9 +59,25 @@ public class GPSWindow extends JFrame
 		setVisible(true);
 	}
 	
-	public void update()
+	public void updatePlayerPosition(int x, int z)
 	{
+		if(!isCustomCenter)
+		{
+			centerLocationX = x;
+			centerLocationZ = z;
+		}
+		
+		//TODO: Bottom pane update.
+		
 		pane.repaint();
+	}
+	
+	public void resetMovement()
+	{
+		isCustomCenter = false;
+		centerLocationX = core.getLastUpdatedPositionX();
+		centerLocationZ = core.getLastUpdatedPositionZ();
+		repaint();
 	}
 	
 	private class Settings extends JComponent
@@ -230,9 +246,7 @@ public class GPSWindow extends JFrame
 			center.setEnabled(false);
 			center.addActionListener((ActionEvent e) -> {
 				center.setEnabled(false);
-				offsetX = 0;
-				offsetZ = 0;
-				alternateCenter = null;
+				resetMovement();
 				pane.repaint();
 			});
 			add(center);
@@ -351,14 +365,15 @@ public class GPSWindow extends JFrame
 						if(name != null && !name.trim().isEmpty())
 						{
 							name = name.trim();
-							core.addWaypoint(name, core.getLastUpdatedPositionX() + offsetX - getWidth() / 2 + e.getX(), core.getLastUpdatedPositionZ() + offsetZ - getHeight() / 2 + e.getY());
+							core.addWaypoint(name,
+									centerLocationX - getWidth() / 2 + e.getX(),
+									centerLocationZ - getHeight() / 2 + e.getY());
 							pane.repaint();
 						}
 					}
 					else
 					{
 						pointerDown = e.getPoint();
-						lastOffsetX = lastOffsetZ = 0;
 					}
 				}
 				
@@ -382,26 +397,20 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mouseDragged(MouseEvent e)
 				{
-					int x = e.getX();
-					int z = e.getY();
+					int x = pointerDown.x - e.getX();
+					int z = pointerDown.y - e.getY();
+					pointerDown = e.getPoint();
 					
-					offsetX -= lastOffsetX;
-					offsetZ -= lastOffsetZ;
-					
-					lastOffsetX = pointerDown.x - x;
-					lastOffsetZ = pointerDown.y - z;
-					
-					offsetX += lastOffsetX;
-					offsetZ += lastOffsetZ;
-					
-					if(offsetX != 0 || offsetZ != 0)
+					if(x != 0 || z != 0)
 					{
-						if(alternateCenter == null)
+						if(!isCustomCenter)
 						{
 							controls.center.setEnabled(true);
 						}
 						
-						alternateCenter = new Point(core.getLastUpdatedPositionX() + offsetX, core.getLastUpdatedPositionZ() + offsetZ);
+						isCustomCenter = true;
+						centerLocationX += x;
+						centerLocationZ += z;
 						
 						GPSWindow.this.repaint();
 					}
@@ -419,33 +428,33 @@ public class GPSWindow extends JFrame
 		{
 			int w = getWidth();
 			int h = getHeight();
+			int localXOffset = centerLocationX - w / 2;
+			int localZOffset = centerLocationZ - h / 2;
 			
-			Point realCenter = new Point(core.getLastUpdatedPositionX(), core.getLastUpdatedPositionZ());
-			Point center = alternateCenter == null ? realCenter : alternateCenter;
-			
+			//Draw background:
 			g.setColor(Color.white);
 			g.fillRect(0, 0, w, h);
 			
-			int offX = center.x - w / 2;
-			int offZ = center.y - h / 2;
+			//Draw Lines:
 			for(Line line : core.getStorage().getLines())
 			{
 				g.setColor(line.color);
-				g.drawLine(line.x1 - offX, line.z1 - offZ, line.x2 - offX, line.z2 - offZ);
+				g.drawLine(line.x1 - localXOffset, line.z1 - localZOffset, line.x2 - localXOffset, line.z2 - localZOffset);
 			}
 			
+			//Draw waypoints:
 			g.setColor(Color.red);
 			for(Waypoint waypoint : core.getStorage().getWaypoints())
 			{
-				int x = waypoint.x - offX;
-				int z = waypoint.z - offZ;
+				int x = waypoint.x - localXOffset;
+				int z = waypoint.z - localZOffset;
 				g.drawOval(x - 3, z - 3, 6, 6);
-				
 				g.drawString(waypoint.label, x + 6, z + 4);
 			}
 			
+			//Draw player position:
 			g.setColor(Color.black);
-			g.drawOval(w / 2 - (center.x - realCenter.x) - 3, h / 2 - (center.y - realCenter.y) - 3, 6, 6);
+			g.drawOval(w / 2 - (centerLocationX - core.getLastUpdatedPositionX()) - 3, h / 2 - (centerLocationZ - core.getLastUpdatedPositionZ()) - 3, 6, 6);
 		}
 	}
 }
