@@ -5,7 +5,7 @@ public class Waypoint
 	
 	private static long lastID = 0;
 	
-	public final String label;
+	public String label;
 	public final int x, z;
 	public final long id;
 	

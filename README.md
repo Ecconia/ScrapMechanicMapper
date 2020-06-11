@@ -51,6 +51,14 @@ Tool usage:
 - Press the `+` and then on the map, to add a waypoint. It will ask you for a label, only `Ok/Enter` will place it.
 - By default, it doesn't draw lines, you have to select a color for that, if you don't want it to draw press `Off`.
 
+Map interactions:
+- You can zoom in and out by scrolling.
+- You can drag your mouse around to move where you are looking on the map.
+- You can select waypoints.
+  - Pressing the `escape` key will clear your selection.
+  - Pressing either `delete` or `backspace` will remove the selected waypoint.
+  - Double clicking on a waypoint (whether selected or not) will let you to edit the name.
+
 ### TODOs
 
 Usability:
@@ -64,6 +72,7 @@ Usability:
 - Allow adding points and lines from/with the GUI.
 - Add guided memory-scanner to not rely on cheat engine.
 - Add world/file chooser, current default is `save.txt`.
+- Add undo and redo history.
 
 Technical:
 - Create a path instead of many lines (in memory at least).
@@ -71,5 +80,7 @@ Technical:
 - Add clipping and bounds in the render routine.
 
 #### Help
-
-For casual help and issues, or any discussions about this project, you may contact me in the ScrapMechanic discord server, or on my [Delveopment Discord Server](https://discord.com/invite/dYYxNvp). My username is always Ecconia.
+##### Ecconia
+For casual help and issues, or any discussions about this project, you may contact me in the ScrapMechanic discord server, or on my [Development Discord Server](https://discord.com/invite/dYYxNvp). My username is always Ecconia.
+##### RobotMan2412
+I'm helping with the project, you can contact me as RobotMan2412#1572 on discord.
