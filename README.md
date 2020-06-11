@@ -69,3 +69,7 @@ Technical:
 - Create a path instead of many lines (in memory at least).
 - Improve the file structure, something binary is quite possible.
 - Add clipping and bounds in the render routine.
+
+#### Help
+
+For casual help and issues, or any discussions about this project, you may contact me in the ScrapMechanic discord server, or on my [Delveopment Discord Server](https://discord.com/invite/dYYxNvp). My username is always Ecconia.
