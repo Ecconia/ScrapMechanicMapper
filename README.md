@@ -18,7 +18,9 @@ You need CheatEngine to get the player position's memory addresses, see instruct
 ---
 
 This is how the actual tool looks like: (You can see my current world I am playing on)
-![This is how it looks like.](https://user-images.githubusercontent.com/18501527/84353825-1efa1d80-abc0-11ea-9ef3-3e41c34c1c75.png)
+![This is how it looks like.](https://user-images.githubusercontent.com/18501527/84356158-17d50e80-abc4-11ea-94ac-dc421384016a.png)
+
+[Big SPOILER version of image.](https://user-images.githubusercontent.com/18501527/84353825-1efa1d80-abc0-11ea-9ef3-3e41c34c1c75.png)
 
 ### Usage:
 
