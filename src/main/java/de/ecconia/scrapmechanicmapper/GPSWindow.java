@@ -349,6 +349,8 @@ public class GPSWindow extends JFrame
 	private class DrawPane extends JComponent
 	{
 		private float zoomFactor = 1f;
+		private boolean isMouseIn;
+		private long highlightedWaypointID;
 		
 		public DrawPane()
 		{
@@ -395,11 +397,13 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mouseEntered(MouseEvent e)
 				{
+					isMouseIn = true;
 				}
 				
 				@Override
 				public void mouseExited(MouseEvent e)
 				{
+					isMouseIn = false;
 				}
 			});
 			addMouseMotionListener(new MouseMotionListener()
@@ -429,6 +433,10 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mouseMoved(MouseEvent e)
 				{
+					if (isMouseIn && !captureWaypoint)
+					{
+						
+					}
 				}
 			});
 			addMouseWheelListener((MouseWheelEvent e) -> {
