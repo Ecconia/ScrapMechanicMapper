@@ -353,12 +353,12 @@ public class GPSWindow extends JFrame
 	{
 		private float zoomFactor = 1f;
 		private boolean isMouseIn;
-		private int highlightedWaypointID;
-		private int selectedWaypointID;
+		private Waypoint highlightedWaypoint;
+		private Waypoint selectedWaypoint;
 		
 		public DrawPane()
 		{
-			highlightedWaypointID = selectedWaypointID = -1;
+			highlightedWaypoint = selectedWaypoint = null;
 			DrawPane.this.setFocusable(true);
 			addKeyListener(new KeyListener()
 			{
@@ -374,13 +374,17 @@ public class GPSWindow extends JFrame
 					switch(e.getKeyCode())
 					{
 						case KeyEvent.VK_ESCAPE:
-							selectedWaypointID = -1;
+							selectedWaypoint = null;
 							pane.repaint();
 							break;
 						case KeyEvent.VK_DELETE:
 						case KeyEvent.VK_BACK_SPACE:
-							core.getStorage().removeWaypointByID(selectedWaypointID);
-							selectedWaypointID = -1;
+							core.getStorage().removeWaypoint(selectedWaypoint);
+							if(selectedWaypoint == highlightedWaypoint)
+							{
+								highlightedWaypoint = null;
+							}
+							selectedWaypoint = null;
 							pane.repaint();
 							break;
 					}
@@ -397,17 +401,13 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mouseClicked(MouseEvent e)
 				{
-					if(e.getClickCount() > 1 && selectedWaypointID != -1)
+					if(e.getClickCount() > 1 && selectedWaypoint != null)
 					{
-						Waypoint selected = core.getStorage().getWaypointByID(selectedWaypointID);
-						if(selected != null)
+						String name = JOptionPane.showInputDialog("Rename waypoint...");
+						if(name != null && !name.trim().isEmpty())
 						{
-							String name = JOptionPane.showInputDialog("Rename waypoint...");
-							if(name != null && !name.trim().isEmpty())
-							{
-								name = name.trim();
-								selected.label = name;
-							}
+							name = name.trim();
+							selectedWaypoint.label = name;
 						}
 					}
 				}
@@ -446,7 +446,7 @@ public class GPSWindow extends JFrame
 				{
 					if(clickedPoint.equals(e.getPoint()))
 					{
-						selectedWaypointID = highlightedWaypointID;
+						selectedWaypoint = highlightedWaypoint;
 						pane.repaint();
 					}
 				}
@@ -461,7 +461,7 @@ public class GPSWindow extends JFrame
 				public void mouseExited(MouseEvent e)
 				{
 					isMouseIn = false;
-					highlightedWaypointID = -1;
+					highlightedWaypoint = null;
 					pane.repaint();
 				}
 			});
@@ -518,10 +518,10 @@ public class GPSWindow extends JFrame
 							}
 						}
 						
-						long lastHighlighted = highlightedWaypointID;
-						highlightedWaypointID = closest != null ? closest.id : -1;
+						Waypoint lastHighlighted = highlightedWaypoint;
+						highlightedWaypoint = closest;
 						
-						if(lastHighlighted != highlightedWaypointID)
+						if(lastHighlighted != highlightedWaypoint)
 						{
 							pane.repaint();
 						}
@@ -579,11 +579,11 @@ public class GPSWindow extends JFrame
 			//Draw waypoints:
 			for(Waypoint waypoint : core.getStorage().getWaypoints())
 			{
-				if(waypoint.id == highlightedWaypointID)
+				if(waypoint == highlightedWaypoint)
 				{
 					g.setColor(Color.black);
 				}
-				else if(waypoint.id == selectedWaypointID)
+				else if(waypoint == selectedWaypoint)
 				{
 					g.setColor(new Color(55, 55, 255));
 				}
