@@ -1,6 +1,7 @@
 package de.ecconia.scrapmechanicmapper;
 
 import de.ecconia.scrapmechanicmapper.accessor.ProcessWrapper;
+import javax.swing.JOptionPane;
 
 public class AddressToPosition extends Thread
 {
@@ -24,22 +25,38 @@ public class AddressToPosition extends Thread
 	@Override
 	public void run()
 	{
-		System.out.println("Started update thread.");
-		while(!isInterrupted())
+		try
 		{
-			float a = process.readFloat(addressA);
-			float b = process.readFloat(addressB);
-			receiver.updatePosition(a, b);
-			
-			try
+			System.out.println("Started update thread.");
+			while(!isInterrupted())
 			{
-				Thread.sleep(500);
-			}
-			catch(InterruptedException e)
-			{
-				break;
+				float a = process.readFloat(addressA);
+				float b = process.readFloat(addressB);
+				receiver.updatePosition(a, b);
+				
+				try
+				{
+					Thread.sleep(500);
+				}
+				catch(InterruptedException e)
+				{
+					break;
+				}
 			}
 		}
+		catch(Error e)
+		{
+			if(e.getMessage().equals("Invalid memory access"))
+			{
+				System.out.println("Cannot access it.");
+				JOptionPane.showMessageDialog(null, "Cannot read from that address. Start with console and report to developer.");
+			}
+			else
+			{
+				throw e;
+			}
+		}
+		
 		System.out.println("Stopped updated thread.");
 	}
 	

@@ -17,6 +17,7 @@ public class ProcessWrapper
 	public ProcessWrapper(String name)
 	{
 		int pid = getProcessId(name);
+		System.out.println("Pid is: " + pid);
 		if(pid == 0)
 		{
 			System.err.println("Could not find process.");
@@ -24,6 +25,7 @@ public class ProcessWrapper
 		}
 		
 		process = openProcess(PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION, pid);
+		System.out.println("Process val: " + process);
 	}
 	
 	public String getProcessImageFileName()
