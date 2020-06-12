@@ -2,7 +2,6 @@ package de.ecconia.scrapmechanicmapper.objects;
 
 public class Waypoint
 {
-	
 	private static long lastID = 0;
 	
 	public String label;
@@ -15,7 +14,6 @@ public class Waypoint
 		this.x = x;
 		this.z = z;
 		id = lastID;
-		lastID ++;
+		lastID++;
 	}
-	
 }

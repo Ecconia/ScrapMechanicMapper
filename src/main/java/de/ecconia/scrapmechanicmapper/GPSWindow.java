@@ -9,7 +9,13 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Point;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -60,7 +66,7 @@ public class GPSWindow extends JFrame
 	
 	public void updatePlayerPosition(int x, int z)
 	{
-		if (!isCustomCenter)
+		if(!isCustomCenter)
 		{
 			centerLocationX = x;
 			centerLocationZ = z;
@@ -116,7 +122,7 @@ public class GPSWindow extends JFrame
 					try
 					{
 						String text = doc.getText(0, doc.getLength());
-						if (text.matches("[0-9a-fA-F]+"))
+						if(text.matches("[0-9a-fA-F]+"))
 						{
 							a.setBackground(Color.white);
 						}
@@ -125,7 +131,8 @@ public class GPSWindow extends JFrame
 							a.setBackground(new Color(250, 200, 200));
 						}
 						
-					} catch (BadLocationException e)
+					}
+					catch(BadLocationException e)
 					{
 						e.printStackTrace();
 					}
@@ -156,7 +163,7 @@ public class GPSWindow extends JFrame
 					try
 					{
 						String text = doc.getText(0, doc.getLength());
-						if (text.trim().matches("[0-9a-fA-F]+"))
+						if(text.trim().matches("[0-9a-fA-F]+"))
 						{
 							b.setBackground(Color.white);
 						}
@@ -164,7 +171,8 @@ public class GPSWindow extends JFrame
 						{
 							b.setBackground(new Color(250, 200, 200));
 						}
-					} catch (BadLocationException e)
+					}
+					catch(BadLocationException e)
 					{
 						e.printStackTrace();
 					}
@@ -195,14 +203,15 @@ public class GPSWindow extends JFrame
 				String bt = b.getText().trim();
 				b.setText(bt);
 				
-				if (at.matches("[0-9a-fA-F]+") && bt.matches("[0-9a-fA-F]+"))
+				if(at.matches("[0-9a-fA-F]+") && bt.matches("[0-9a-fA-F]+"))
 				{
 					try
 					{
 						long addrA = Long.parseLong(at, 16);
 						long addrB = Long.parseLong(bt, 16);
 						core.updateAddresses(addrA, addrB);
-					} catch (NumberFormatException numberFormatException)
+					}
+					catch(NumberFormatException numberFormatException)
 					{
 						JOptionPane.showMessageDialog(null, "Well either of these two could not be parsed: " + numberFormatException.getMessage());
 					}
@@ -332,7 +341,7 @@ public class GPSWindow extends JFrame
 		private void rearm()
 		{
 			activeOne.setEnabled(true);
-			if (!activeOne.getText().equals("Off"))
+			if(!activeOne.getText().equals("Off"))
 			{
 				activeOne.setBackground(activeOne.getBackground().brighter());
 				activeOne.repaint();
@@ -362,7 +371,7 @@ public class GPSWindow extends JFrame
 				@Override
 				public void keyPressed(KeyEvent e)
 				{
-					switch (e.getKeyCode())
+					switch(e.getKeyCode())
 					{
 						case KeyEvent.VK_ESCAPE:
 							selectedWaypointID = -1;
@@ -388,13 +397,13 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mouseClicked(MouseEvent e)
 				{
-					if (e.getClickCount() > 1 && selectedWaypointID != -1)
+					if(e.getClickCount() > 1 && selectedWaypointID != -1)
 					{
 						Waypoint selected = core.getStorage().getWaypointByID(selectedWaypointID);
-						if (selected != null)
+						if(selected != null)
 						{
 							String name = JOptionPane.showInputDialog("Rename waypoint...");
-							if (name != null && !name.trim().isEmpty())
+							if(name != null && !name.trim().isEmpty())
 							{
 								name = name.trim();
 								selected.label = name;
@@ -406,11 +415,11 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mousePressed(MouseEvent e)
 				{
-					if (captureWaypoint)
+					if(captureWaypoint)
 					{
 						captureWaypoint = false;
 						String name = JOptionPane.showInputDialog("Name of waypoint?");
-						if (name != null && !name.trim().isEmpty())
+						if(name != null && !name.trim().isEmpty())
 						{
 							int w = getWidth();
 							int h = getHeight();
@@ -435,7 +444,7 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mouseReleased(MouseEvent e)
 				{
-					if (clickedPoint.equals(e.getPoint()))
+					if(clickedPoint.equals(e.getPoint()))
 					{
 						selectedWaypointID = highlightedWaypointID;
 						pane.repaint();
@@ -465,9 +474,9 @@ public class GPSWindow extends JFrame
 					int z = pointerDown.y - e.getY();
 					pointerDown = e.getPoint();
 					
-					if (x != 0 || z != 0)
+					if(x != 0 || z != 0)
 					{
-						if (!isCustomCenter)
+						if(!isCustomCenter)
 						{
 							controls.center.setEnabled(true);
 							isCustomCenter = true;
@@ -483,7 +492,7 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mouseMoved(MouseEvent e)
 				{
-					if (isMouseIn && !captureWaypoint)
+					if(isMouseIn && !captureWaypoint)
 					{
 						int w = getWidth();
 						int h = getHeight();
@@ -497,12 +506,12 @@ public class GPSWindow extends JFrame
 						
 						double closestSqrDist = Double.POSITIVE_INFINITY;
 						Waypoint closest = null;
-						for (Waypoint waypoint : core.getStorage().getWaypoints())
+						for(Waypoint waypoint : core.getStorage().getWaypoints())
 						{
 							int x = (int) ((waypoint.x - localXOffset - hw) * zoomFactor + hw);
 							int z = (int) ((waypoint.z - localZOffset - hh) * zoomFactor + hh);
 							double sqrDist = (x - mouseX) * (x - mouseX) + (z - mouseY) * (z - mouseY);
-							if (sqrDist < 400 && sqrDist < closestSqrDist)
+							if(sqrDist < 400 && sqrDist < closestSqrDist)
 							{
 								closestSqrDist = sqrDist;
 								closest = waypoint;
@@ -512,7 +521,7 @@ public class GPSWindow extends JFrame
 						long lastHighlighted = highlightedWaypointID;
 						highlightedWaypointID = closest != null ? closest.id : -1;
 						
-						if (lastHighlighted != highlightedWaypointID)
+						if(lastHighlighted != highlightedWaypointID)
 						{
 							pane.repaint();
 						}
@@ -521,14 +530,14 @@ public class GPSWindow extends JFrame
 			});
 			addMouseWheelListener((MouseWheelEvent e) -> {
 				int amount = e.getWheelRotation();
-				if (amount == 0)
+				if(amount == 0)
 				{
 					return;
 				}
 				
 				//TODO: If center is not locked, zoom to/from cursor.
 				
-				if (amount < 0)
+				if(amount < 0)
 				{
 					zoomFactor *= 1.1;
 				}
@@ -556,7 +565,7 @@ public class GPSWindow extends JFrame
 			g.fillRect(0, 0, w, h);
 			
 			//Draw Lines:
-			for (Line line : core.getStorage().getLines())
+			for(Line line : core.getStorage().getLines())
 			{
 				g.setColor(line.color);
 				g.drawLine(
@@ -564,18 +573,18 @@ public class GPSWindow extends JFrame
 						(int) ((line.z1 - localZOffset - hh) * zoomFactor + hh),
 						(int) ((line.x2 - localXOffset - hw) * zoomFactor + hw),
 						(int) ((line.z2 - localZOffset - hh) * zoomFactor + hh)
-						  );
+				);
 			}
 			
 			//Draw waypoints:
 			g.setColor(Color.red);
-			for (Waypoint waypoint : core.getStorage().getWaypoints())
+			for(Waypoint waypoint : core.getStorage().getWaypoints())
 			{
-				if (waypoint.id == highlightedWaypointID)
+				if(waypoint.id == highlightedWaypointID)
 				{
 					g.setColor(Color.black);
 				}
-				else if (waypoint.id == selectedWaypointID)
+				else if(waypoint.id == selectedWaypointID)
 				{
 					g.setColor(new Color(55, 55, 255));
 				}
@@ -583,7 +592,7 @@ public class GPSWindow extends JFrame
 				int z = (int) ((waypoint.z - localZOffset - hh) * zoomFactor + hh);
 				g.drawOval(x - 3, z - 3, 6, 6);
 				g.drawString(waypoint.label, x + 6, z + 4);
-				if (waypoint.id == highlightedWaypointID || waypoint.id == selectedWaypointID)
+				if(waypoint.id == highlightedWaypointID || waypoint.id == selectedWaypointID)
 				{
 					g.setColor(Color.red);
 				}
