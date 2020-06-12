@@ -353,8 +353,8 @@ public class GPSWindow extends JFrame
 	{
 		private float zoomFactor = 1f;
 		private boolean isMouseIn;
-		private long highlightedWaypointID;
-		private long selectedWaypointID;
+		private int highlightedWaypointID;
+		private int selectedWaypointID;
 		
 		public DrawPane()
 		{

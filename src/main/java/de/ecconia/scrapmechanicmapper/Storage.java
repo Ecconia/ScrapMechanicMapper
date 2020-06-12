@@ -103,7 +103,7 @@ public class Storage
 		waypoints.add(waypoint);
 	}
 	
-	public Waypoint getWaypointByID(long waypointID)
+	public Waypoint getWaypointByID(int waypointID)
 	{
 		for(Waypoint waypoint : waypoints)
 		{
@@ -115,7 +115,7 @@ public class Storage
 		return null;
 	}
 	
-	public void removeWaypointByID(long waypointID)
+	public void removeWaypointByID(int waypointID)
 	{
 		for(int i = 0; i < waypoints.size(); i++)
 		{
