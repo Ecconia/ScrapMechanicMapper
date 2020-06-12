@@ -15,6 +15,12 @@ You need CheatEngine to get the player position's memory addresses, see instruct
 * Good with multi-monitors.
 * Good with an in game built scooter. For exploration.
 
+#### Why CheatEngine and not some Survival-Mod?
+
+The game API does afaik not allow to export the position to a file. But this tool needs a constant update of it. So the only way of accessing it, is via some Windows API. Thus you need CheatEngine to figure out which address in memory the position is stored in.
+
+You may however use a mod to print/display your position and greatly improve your search with CheatEngine. Just keep in mind, that when using multiplayer, all players must install that mod.
+
 ---
 
 This is how the actual tool looks like: (You can see my current world I am playing on)
@@ -24,12 +30,15 @@ This is how the actual tool looks like: (You can see my current world I am playi
 
 ### Usage:
 
+Pre-requirements: You have to install `Java Runtime Environment` and `CheatEngine`. CheatEngine is required to know where your player-position is stored in memory.
+
 Install: Grab the latest [release](https://github.com/Ecconia/ScrapMechanicMapper/releases) (if any), or compile it yourself using e.g. IntelliJ or Maven (`mvn package`).
 
-Launch: You now have the .jar file, launch it `java -jar <filename>` to see your stored map (`save.txt` same folder as jar).
- If your system supports it, just double-click the jar.
+Instruction Video on [Youtube](https://youtu.be/yxnz1p_RWrk)
 
-Pre-requirements: You will need `CheatEngine` to know where your player-position is stored!!
+Launch: If your Java is installed properly, you can launch the tool by double-clicking it. If you prefer to, you may start it via a terminal of your choice using `java -jar <filename>` though. (Terminals like e.g. `cmd`).
+
+Maps: Currently the tool always saves the map as `save.txt`, in the folder you run the .jar from, in general it is the same folder which the tool is in. If you have multiple worlds/maps, you have to rename the savefile if you want to switch between them.
 
 CheatEngine usage:
 - Select ScrapMechanic as the current program (button top left).
@@ -41,7 +50,8 @@ CheatEngine usage:
 - You will see the same two values over and over again, pick the one where you have at least 10 occurrences. Double-click a pair to have it highlighted by CheatEngine.
 - Copy the address into this tool, the higher address of a pair goes into the first filed (sry for this step). Please confirm somehow that a drawn slope matches your movement, else swap the two addresses.
 - Press `Done` and your position is now live transmitted.
-- Hint: Once you die in game with all the filter steps above done, Only about 10 addresses will be valid! Switch to them then! You may want to keep CheatEngine open while playing, in case that you die. But once died, you have more persistent memory addresses.
+- Hint: Most of the addresses you found are only valid while your player is alive. If you die, only roughly 10 of these addresses stay valid, but these will stay valid no matter if you die.
+In case you died, you should switch to these remaining persistent addresses. I recommend you to keep CheatEngine open, until you died once. Cause then you don't have to filter all addresses again, each time you die.
 
 Tool usage:
 - All fields and buttons have Tooltips (hover with mouse over them), use it.
