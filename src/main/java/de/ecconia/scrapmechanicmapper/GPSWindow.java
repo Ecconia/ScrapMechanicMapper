@@ -577,7 +577,6 @@ public class GPSWindow extends JFrame
 			}
 			
 			//Draw waypoints:
-			g.setColor(Color.red);
 			for(Waypoint waypoint : core.getStorage().getWaypoints())
 			{
 				if(waypoint.id == highlightedWaypointID)
@@ -588,14 +587,14 @@ public class GPSWindow extends JFrame
 				{
 					g.setColor(new Color(55, 55, 255));
 				}
+				else
+				{
+					g.setColor(Color.red);
+				}
 				int x = (int) ((waypoint.x - localXOffset - hw) * zoomFactor + hw);
 				int z = (int) ((waypoint.z - localZOffset - hh) * zoomFactor + hh);
 				g.drawOval(x - 3, z - 3, 6, 6);
 				g.drawString(waypoint.label, x + 6, z + 4);
-				if(waypoint.id == highlightedWaypointID || waypoint.id == selectedWaypointID)
-				{
-					g.setColor(Color.red);
-				}
 			}
 			
 			//Draw player position:
