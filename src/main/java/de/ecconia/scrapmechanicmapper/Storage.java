@@ -102,4 +102,9 @@ public class Storage
 	{
 		waypoints.add(waypoint);
 	}
+	
+	public void removeWaypoint(Waypoint waypoint)
+	{
+		waypoints.remove(waypoint);
+	}
 }

@@ -2,7 +2,7 @@ package de.ecconia.scrapmechanicmapper.objects;
 
 public class Waypoint
 {
-	public final String label;
+	public String label;
 	public final int x, z;
 	
 	public Waypoint(String label, int x, int z)

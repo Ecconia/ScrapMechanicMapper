@@ -2,14 +2,20 @@ package de.ecconia.scrapmechanicmapper;
 
 import de.ecconia.scrapmechanicmapper.objects.Line;
 import de.ecconia.scrapmechanicmapper.objects.Waypoint;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -20,10 +26,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 
 public class GPSWindow extends JFrame
 {
@@ -35,6 +37,7 @@ public class GPSWindow extends JFrame
 	private boolean isCustomCenter = false;
 	private int centerLocationX, centerLocationZ;
 	private Point pointerDown;
+	private Point clickedPoint;
 	boolean captureWaypoint;
 	
 	public GPSWindow(Core core, int x, int z)
@@ -349,14 +352,64 @@ public class GPSWindow extends JFrame
 	private class DrawPane extends JComponent
 	{
 		private float zoomFactor = 1f;
+		private boolean isMouseIn;
+		private Waypoint highlightedWaypoint;
+		private Waypoint selectedWaypoint;
 		
 		public DrawPane()
 		{
+			highlightedWaypoint = selectedWaypoint = null;
+			DrawPane.this.setFocusable(true);
+			addKeyListener(new KeyListener()
+			{
+				@Override
+				public void keyTyped(KeyEvent e)
+				{
+					
+				}
+				
+				@Override
+				public void keyPressed(KeyEvent e)
+				{
+					switch(e.getKeyCode())
+					{
+						case KeyEvent.VK_ESCAPE:
+							selectedWaypoint = null;
+							pane.repaint();
+							break;
+						case KeyEvent.VK_DELETE:
+						case KeyEvent.VK_BACK_SPACE:
+							core.getStorage().removeWaypoint(selectedWaypoint);
+							if(selectedWaypoint == highlightedWaypoint)
+							{
+								highlightedWaypoint = null;
+							}
+							selectedWaypoint = null;
+							pane.repaint();
+							break;
+					}
+				}
+				
+				@Override
+				public void keyReleased(KeyEvent e)
+				{
+					
+				}
+			});
 			addMouseListener(new MouseListener()
 			{
 				@Override
 				public void mouseClicked(MouseEvent e)
 				{
+					if(e.getClickCount() > 1 && selectedWaypoint != null)
+					{
+						String name = JOptionPane.showInputDialog("Rename waypoint...");
+						if(name != null && !name.trim().isEmpty())
+						{
+							name = name.trim();
+							selectedWaypoint.label = name;
+						}
+					}
 				}
 				
 				@Override
@@ -372,7 +425,7 @@ public class GPSWindow extends JFrame
 							int h = getHeight();
 							int hw = w / 2;
 							int hh = h / 2;
-
+							
 							name = name.trim();
 							core.addWaypoint(name,
 									centerLocationX + (int) ((e.getX() - hw) / zoomFactor),
@@ -384,22 +437,32 @@ public class GPSWindow extends JFrame
 					else
 					{
 						pointerDown = e.getPoint();
+						clickedPoint = e.getPoint();
 					}
 				}
 				
 				@Override
 				public void mouseReleased(MouseEvent e)
 				{
+					if(clickedPoint.equals(e.getPoint()))
+					{
+						selectedWaypoint = highlightedWaypoint;
+						pane.repaint();
+					}
 				}
 				
 				@Override
 				public void mouseEntered(MouseEvent e)
 				{
+					isMouseIn = true;
 				}
 				
 				@Override
 				public void mouseExited(MouseEvent e)
 				{
+					isMouseIn = false;
+					highlightedWaypoint = null;
+					pane.repaint();
 				}
 			});
 			addMouseMotionListener(new MouseMotionListener()
@@ -429,6 +492,40 @@ public class GPSWindow extends JFrame
 				@Override
 				public void mouseMoved(MouseEvent e)
 				{
+					if(isMouseIn && !captureWaypoint)
+					{
+						int w = getWidth();
+						int h = getHeight();
+						int hw = w / 2;
+						int hh = h / 2;
+						int localXOffset = centerLocationX - hw;
+						int localZOffset = centerLocationZ - hh;
+						
+						int mouseX = e.getX();
+						int mouseY = e.getY();
+						
+						double closestSqrDist = Double.POSITIVE_INFINITY;
+						Waypoint closest = null;
+						for(Waypoint waypoint : core.getStorage().getWaypoints())
+						{
+							int x = (int) ((waypoint.x - localXOffset - hw) * zoomFactor + hw);
+							int z = (int) ((waypoint.z - localZOffset - hh) * zoomFactor + hh);
+							double sqrDist = (x - mouseX) * (x - mouseX) + (z - mouseY) * (z - mouseY);
+							if(sqrDist < 400 && sqrDist < closestSqrDist)
+							{
+								closestSqrDist = sqrDist;
+								closest = waypoint;
+							}
+						}
+						
+						Waypoint lastHighlighted = highlightedWaypoint;
+						highlightedWaypoint = closest;
+						
+						if(lastHighlighted != highlightedWaypoint)
+						{
+							pane.repaint();
+						}
+					}
 				}
 			});
 			addMouseWheelListener((MouseWheelEvent e) -> {
@@ -480,9 +577,20 @@ public class GPSWindow extends JFrame
 			}
 			
 			//Draw waypoints:
-			g.setColor(Color.red);
 			for(Waypoint waypoint : core.getStorage().getWaypoints())
 			{
+				if(waypoint == highlightedWaypoint)
+				{
+					g.setColor(Color.black);
+				}
+				else if(waypoint == selectedWaypoint)
+				{
+					g.setColor(new Color(55, 55, 255));
+				}
+				else
+				{
+					g.setColor(Color.red);
+				}
 				int x = (int) ((waypoint.x - localXOffset - hw) * zoomFactor + hw);
 				int z = (int) ((waypoint.z - localZOffset - hh) * zoomFactor + hh);
 				g.drawOval(x - 3, z - 3, 6, 6);
